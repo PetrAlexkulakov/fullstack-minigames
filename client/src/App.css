@@ -4,3 +4,21 @@
   padding: 2rem;
   text-align: center;
 }
+
+.game-board{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.board-row{
+  height: fit-content;
+  display: flex;
+}
+
+.square {
+  padding: 0;
+  border-radius: 0;
+  width: 2rem;
+  height: 2rem;
+}

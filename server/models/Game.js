@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         player2: {
           type: DataTypes.STRING,
-          allowNull: false
+          allowNull: true
         },
         board: {
           type: DataTypes.STRING,
