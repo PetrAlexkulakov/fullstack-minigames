@@ -1,4 +1,4 @@
-import './App.css'
+import './App.scss'
 import PageWrapper from './components/PageWrapper'
 import AppRouter from './pages/AppRouter'
 
