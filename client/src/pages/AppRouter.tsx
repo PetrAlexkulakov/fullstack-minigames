@@ -3,16 +3,19 @@ import Login from './Login';
 import { useState } from 'react';
 import Menu from './Menu';
 import TicTacToe from './TicTacToe';
+import PrivateRoute from '../components/PrivateRoute';
 
 const AppRouter = () => {
-  const [name, setName] = useState('')
+  const [name, setName] = useState(localStorage.getItem('name') || '')
 
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login name={name} setName={setName} />} />
-        <Route path="/menu" element={<Menu name={name} />} />
-        <Route path="/tictactoe" element={<TicTacToe />} />
+        <Route element={<PrivateRoute name={name} />}>
+          <Route path="/menu" element={<Menu name={name} />} />
+          <Route path="/tictactoe" element={<TicTacToe />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   )

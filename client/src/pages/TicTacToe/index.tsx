@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Board } from './Board';
+import PageWrapper from '../../components/PageWrapper';
 
 export default function TicTacToe() {
   const [history, setHistory] = useState<(string | null)[][]>([Array(9).fill(null)]);
@@ -14,10 +15,12 @@ export default function TicTacToe() {
   }
 
   return (
-    <div className="game">
-      <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+    <PageWrapper>
+      <div className="game">
+        <div className="game-board">
+          <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+        </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 }
