@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Board } from './Board';
 import PageWrapper from '../../components/PageWrapper';
+import { useParams } from 'react-router-dom';
 
 export default function TicTacToe() {
+  const { id } = useParams();
   const [history, setHistory] = useState<(string | null)[][]>([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;

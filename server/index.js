@@ -1,9 +1,9 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const { Sequelize, DataTypes } = require('sequelize');
+const http = require('http');
+const cors = require("cors")
+const socketSetup = require('./routes/socket');
 
 const app = express();
-const cors = require("cors")
 require("dotenv").config()
 
 app.use(express.json())
@@ -12,11 +12,14 @@ app.use(cors())
 const db = require('./models')
 
 const gameRouter = require('./routes/Game');
-const Game = require('./models/Game');
 app.use("/game", gameRouter)
 
+const server = http.createServer(app)
+
+socketSetup(server);
+
 db.sequelize.sync().then(() => {
-    app.listen(process.env.PORT || 3001, () => {
+    server.listen(process.env.PORT || 3001, () => {
         console.log('Server is running');
     });
 }).catch((err) => {
