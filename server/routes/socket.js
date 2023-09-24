@@ -1,6 +1,8 @@
 const { Server } = require('socket.io');
 const { Game } = require('../models');
 
+const tictactoeSocket = require('./tictactoe');
+
 module.exports = (server) => {
     const io = new Server(server, {
       cors: {
@@ -19,7 +21,7 @@ module.exports = (server) => {
                 io.emit('gameCreated', newGame);
             } catch (error) {
                 console.error(error);
-                socket.emit('gameCreationError', { message: 'An error occurred' });
+                socket.emit('gameError', { message: 'An error occurred' });
             }
         });
 
@@ -28,11 +30,12 @@ module.exports = (server) => {
             
             const game = await Game.findByPk(id);
             if (!game) {
-                socket.emit('gameUpdateError', { error: 'Game not found' });
+                socket.emit('gameError', { error: 'Game not found' });
             } else {
                 await game.update(updatedData);
                 
                 io.emit('gameUpdated', game);
+                tictactoeSocket(io);
             }
         });
 

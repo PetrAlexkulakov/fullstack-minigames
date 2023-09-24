@@ -14,7 +14,7 @@ const AppRouter = () => {
         <Route path="/login" element={<Login name={name} setName={setName} />} />
         <Route element={<PrivateRoute name={name} />}>
           <Route path="/menu" element={<Menu name={name} />} />
-          <Route path="/tictactoe/:id" element={<TicTacToe />} />
+          <Route path="/tictactoe/:id" element={<TicTacToe name={name} />} />
         </Route>
       </Routes>
     </BrowserRouter>
