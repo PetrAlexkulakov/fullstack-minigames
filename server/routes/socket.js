@@ -9,6 +9,8 @@ module.exports = (server) => {
     });
   
     io.on('connection', (socket) => {
+        console.log('User connected from socket:', socket.id);
+
         socket.on('createGame', async (data) => {
             try {
                 const { player1, player2 } = data;

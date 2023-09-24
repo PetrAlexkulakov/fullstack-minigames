@@ -19,7 +19,7 @@ const server = http.createServer(app)
 socketSetup(server);
 
 db.sequelize.sync().then(() => {
-    server.listen(process.env.PORT || 3001, () => {
+    server.listen(process.env.PORT || 3002, () => {
         console.log('Server is running');
     });
 }).catch((err) => {

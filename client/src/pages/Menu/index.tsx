@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
-import { io } from "socket.io-client";
+import { socket } from "../../share/socket"
 import { useEffect, useState } from "react"
 import { IGame } from "../../share/interfaces/Game"
 import PageWrapper from "../../components/PageWrapper"
@@ -11,21 +11,34 @@ const Menu = ({ name }: { name: string }) => {
   const [isTictacCreated, setIsTictacCreated] = useState(false)
   const [availableGames, setAvailableGames] = useState<IGame[]>([])
   const basicUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;  
-  const socket = io(basicUrl);
+
+  const checkIsTictacAvailable = (array = availableGames) => {
+    if (array.length > 0) {
+      setIsTictacAvailable(true);
+    } else {
+      setIsTictacAvailable(false);
+    }
+  }
 
   const getAvailableGames = async () => {
     try {
       const res : IGame[] = (await axios.get(`${basicUrl}/game/games`)).data;
+
       setIsTictacCreated(res.some((obj: IGame) => obj.player1 === name));
-      return res.filter((elem: IGame) => elem.player2 === null && elem.player1 !== name);
+      const filteredRes = res.filter((elem: IGame) => elem.player2 === null && elem.player1 !== name)
+
+      checkIsTictacAvailable(filteredRes)
+
+      return filteredRes;
     } catch (error) {
       console.error(error);
       throw error;
     }
   };
 
-  const gameCreatedHandler = (game: IGame) => {
-    setAvailableGames((prev) => [...prev, game])
+  const gameCreatedHandler = async () => {
+    setAvailableGames(await getAvailableGames())
+    //checkIsTictacAvailable();
   }
 
   const gameUpdatedHandler = (game: IGame) => {
@@ -57,12 +70,6 @@ const Menu = ({ name }: { name: string }) => {
     const fetchData = async () => {
       try {
         setAvailableGames(await getAvailableGames());
-  
-        if (availableGames.length > 0) {
-          setIsTictacAvailable(true);
-        } else {
-          setIsTictacAvailable(false);
-        }
       } catch (error) {
         console.error(error);
       }
@@ -70,7 +77,7 @@ const Menu = ({ name }: { name: string }) => {
   
     fetchData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableGames])
+  }, [])
 
   useEffect(() => {
     socket.on('gameCreated', gameCreatedHandler);
@@ -78,6 +85,7 @@ const Menu = ({ name }: { name: string }) => {
     return () => {
         socket.off("gameCreated", gameCreatedHandler);
         socket.off("gameUpdated", gameUpdatedHandler);
+        // socket.disconnect();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
