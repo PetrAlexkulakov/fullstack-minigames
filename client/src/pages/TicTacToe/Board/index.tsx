@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Square } from './Square';
 
 export function Board({ xIsNext, squares, onPlay }: { 
@@ -18,8 +19,12 @@ export function Board({ xIsNext, squares, onPlay }: {
         onPlay(nextSquares);
     }
 
-    const winner = calculateWinner(squares);
+    const [winner, setWinner] = useState(calculateWinner(squares));
     let status;
+    useEffect(() => {
+        setWinner(calculateWinner(squares))
+
+    })
     if (winner) {
         status = 'Winner: ' + winner;
     } else {
@@ -44,6 +49,9 @@ export function Board({ xIsNext, squares, onPlay }: {
             <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
             <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
         </div>
+        {winner && (
+            <a className='btn border border-black mt-2' href='/menu'>Go To Menu</a>
+        )}
         </>
     );
 }

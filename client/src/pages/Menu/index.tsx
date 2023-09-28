@@ -55,13 +55,10 @@ const Menu = ({ name }: { name: string }) => {
       } else {
         const gameRoom = availableGames[0]
         gameRoom.player2 = name
-        // const game =
         socket.emit('updateGame', {
           id: gameRoom.id,
           updatedData: gameRoom
         })
-  
-        // navigate(`/tictactoe/${game.id}`)
       }
     }
   }
