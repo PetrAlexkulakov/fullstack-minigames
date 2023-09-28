@@ -14,7 +14,7 @@ module.exports = (socket, io) => {
                 let userRole = null;
 
                 if (game.player1 === name) {
-                    userRole = 'Х';
+                    userRole = 'X';
                 } else if (game.player2 === name) {
                     userRole = 'O';
                 }
@@ -50,8 +50,11 @@ module.exports = (socket, io) => {
 
             game.board = board; 
             await game.save(); 
+
+            const xIsNext = game.board.split('').filter(char => char === "X").length <= 
+                game.board.split('').filter(char => char === "O").length
         
-            io.to(`game-${id}`).emit('updateBoard', { board: game.board });
+            io.to(`game-${id}`).emit('updateBoard', { board: game.board, xIsNext });
 
             return game;
         } catch (error) {

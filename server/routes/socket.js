@@ -35,6 +35,7 @@ module.exports = (server) => {
                 await game.update(updatedData);
                 
                 io.emit('gameUpdated', game);
+                // socket.emit('gameUpdated', game);
             }
         });
 

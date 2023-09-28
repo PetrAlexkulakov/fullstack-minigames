@@ -8,8 +8,8 @@ export default function TicTacToe({ name }: { name: string }) {
   const { id } = useParams();
   const [history, setHistory] = useState<(string | null)[]>(Array(9).fill(null));
   const [currentMove, setCurrentMove] = useState(0);
-  const [userRole, setUserRole] = useState('0');
-  const xIsNext = currentMove % 2 === 0;
+  const [userRole, setUserRole] = useState('O');
+  const [xIsNext, setxIsNext] = useState(currentMove % 2 === 0);
 
   const userRoleHandler = ({ role, board }: { role: string, board: string }) => {
     setUserRole(role)
@@ -17,18 +17,22 @@ export default function TicTacToe({ name }: { name: string }) {
   }
 
   function handlePlay(nextSquares: (string | null)[]) {
-    const nextHistory =  nextSquares;
-    setHistory(nextHistory);
-    socket.emit('playerMove', {
-      id,
-      name,
-      board: nextHistory.map((element) => (element === null ? '-' : element)).join('')
-    })
-    setCurrentMove(nextHistory.length - 1);
+    if ((userRole === 'O' && !xIsNext) || (userRole === 'X' && xIsNext)) {
+      const nextHistory =  nextSquares;
+      setHistory(nextHistory);
+      socket.emit('playerMove', {
+        id,
+        name,
+        board: nextHistory.map((element) => (element === null ? '-' : element)).join('')
+      })
+      setCurrentMove(nextHistory.length - 1);
+    }
   }
 
-  const handleUpdateBoard = ({ board }: { board: string }) => {
+  const handleUpdateBoard = ({ board, xIsNext }: { board: string, xIsNext: boolean }) => {
     setHistory(Array.from(board, (char) => (char === '-' ? null : char)))
+
+    setxIsNext(xIsNext)
   }
 
   useEffect(() => {
