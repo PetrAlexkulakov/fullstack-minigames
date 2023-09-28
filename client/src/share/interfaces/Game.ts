@@ -3,4 +3,5 @@ export interface IGame {
     player1: string
     player2: string | null
     board: string
+    gameType: string
 }

@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
         board: {
           type: DataTypes.STRING,
           allowNull: false
+        },
+        gameType: {
+          type: DataTypes.STRING,
+          allowNull: false
         }
     });
 

@@ -15,8 +15,8 @@ module.exports = (server) => {
 
         socket.on('createGame', async (data) => {
             try {
-                const { player1, player2 } = data;
-                const newGame = await Game.create({ player1, player2, board: '---------', socketId: socket.id });
+                const { player1, player2, gameType } = data;
+                const newGame = await Game.create({ player1, player2, gameType, board: '---------', socketId: socket.id });
                 
                 io.emit('gameCreated', newGame);
             } catch (error) {

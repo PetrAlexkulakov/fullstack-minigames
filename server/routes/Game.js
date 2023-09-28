@@ -9,8 +9,8 @@ router.get('/games', async (req, res) => {
 
 router.post('/createGame', async (req, res) => {
     try {
-      const { player1, player2 } = req.body;
-      const newGame = await Game.create({ player1, player2, board: '---------' });
+      const { player1, player2, gameType } = req.body;
+      const newGame = await Game.create({ player1, player2, gameType, board: '---------' });
       res.json(newGame);
     } catch (error) {
       console.error(error);

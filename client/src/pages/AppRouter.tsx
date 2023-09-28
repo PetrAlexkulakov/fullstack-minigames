@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Menu from './Menu';
 import TicTacToe from './TicTacToe';
 import PrivateRoute from '../components/PrivateRoute';
+import TenSticks from './TenSticks';
 
 const AppRouter = () => {
   const [name, setName] = useState(localStorage.getItem('name') || '')
@@ -15,6 +16,7 @@ const AppRouter = () => {
         <Route element={<PrivateRoute name={name} />}>
           <Route path="/menu" element={<Menu name={name} />} />
           <Route path="/tictactoe/:id" element={<TicTacToe name={name} />} />
+          <Route path="/tensticks/:id" element={<TenSticks name={name} />} />
         </Route>
       </Routes>
     </BrowserRouter>

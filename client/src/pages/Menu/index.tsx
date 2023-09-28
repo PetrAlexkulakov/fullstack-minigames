@@ -9,6 +9,8 @@ const Menu = ({ name }: { name: string }) => {
   const navigate = useNavigate()
   const [isTictacAvailable, setIsTictacAvailable] = useState(false)
   const [isTictacCreated, setIsTictacCreated] = useState(false)
+  const [isTenAvailable, setIsTenAvailable] = useState(false)
+  const [isTenCreated, setIsTenCreated] = useState(false)
   const [availableGames, setAvailableGames] = useState<IGame[]>([])
   const basicUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL;  
 
@@ -20,16 +22,27 @@ const Menu = ({ name }: { name: string }) => {
     }
   }
 
+  const checkIsTenAvailable = (array = availableGames) => {
+    if (array.length > 0) {
+      setIsTenAvailable(true);
+    } else {
+      setIsTenAvailable(false);
+    }
+  }
+
   const getAvailableGames = async () => {
     try {
       const res : IGame[] = (await axios.get(`${basicUrl}/game/games`)).data;
 
-      setIsTictacCreated(res.some((obj: IGame) => obj.player1 === name && obj.player2 == null));
-      const filteredRes = res.filter((elem: IGame) => elem.player2 === null && elem.player1 !== name)
+      setIsTictacCreated(res.some((obj: IGame) => obj.player1 === name && obj.player2 == null && obj.gameType === 'tictactoe'));
+      setIsTenCreated(res.some((obj: IGame) => obj.player1 === name && obj.player2 == null && obj.gameType === 'tensticks'))
 
-      checkIsTictacAvailable(filteredRes)
+      const filteredResTic = res.filter((elem: IGame) => elem.player2 === null && elem.player1 !== name && elem.gameType === 'tictactoe')
+      const filteredResTen = res.filter((elem: IGame) => elem.player2 === null && elem.player1 !== name && elem.gameType === 'tensticks')
+      checkIsTictacAvailable(filteredResTic)
+      checkIsTenAvailable(filteredResTen)
 
-      return filteredRes;
+      return filteredResTic.concat(filteredResTen);
     } catch (error) {
       console.error(error);
       throw error;
@@ -41,24 +54,53 @@ const Menu = ({ name }: { name: string }) => {
   }
 
   const gameUpdatedHandler = (game: IGame) => {
-    navigate(`/tictactoe/${game.id}`)
+    if (game.gameType === 'tictactoe') {
+      navigate(`/tictactoe/${game.id}`)
+    } else if (game.gameType === 'tensticks') {
+      navigate(`/tensticks/${game.id}`)
+    }
   }
 
-  const handleStart = async () => {
+  const handleStartTic = async () => {
     setAvailableGames((await getAvailableGames()))
     if (!isTictacCreated) {
       if (availableGames.length === 0) {   
         socket.emit('createGame', {
             player1: name,
-            player2: null
+            player2: null,
+            gameType: 'tictactoe'
         })
       } else {
-        const gameRoom = availableGames[0]
-        gameRoom.player2 = name
-        socket.emit('updateGame', {
-          id: gameRoom.id,
-          updatedData: gameRoom
+        const gameRoom = availableGames.find((elem) => elem.gameType === 'tictactoe')
+        if (gameRoom) {
+          gameRoom.player2 = name
+          socket.emit('updateGame', {
+            id: gameRoom.id,
+            updatedData: gameRoom
+          })
+        }
+      }
+    }
+  }
+  
+  const handleStartTen = async () => {
+    setAvailableGames((await getAvailableGames()))
+    if (!isTenCreated) {
+      if (!isTenAvailable) {   
+        socket.emit('createGame', {
+            player1: name,
+            player2: null,
+            gameType: 'tensticks'
         })
+      } else {
+        const gameRoom = availableGames.find((elem) => elem.gameType === 'tensticks')
+        if (gameRoom) {
+          gameRoom.player2 = name
+          socket.emit('updateGame', {
+            id: gameRoom.id,
+            updatedData: gameRoom
+          })
+        }
       }
     }
   }
@@ -86,7 +128,7 @@ const Menu = ({ name }: { name: string }) => {
   return (
     <PageWrapper>
       <h1>Hello, {name}!</h1>
-      <button className="btn border-primary" onClick={handleStart}>
+      <button className="btn border-primary" onClick={handleStartTic}>
         {isTictacAvailable ? (
           <div>Go To Room: Tic-tac-toe</div>
         ) : (
@@ -94,6 +136,17 @@ const Menu = ({ name }: { name: string }) => {
             <div>Wait For Player</div>
           ) : (
             <div>Create Room: Tic-tac-toe</div>
+          )
+        )}
+      </button>
+      <button className="btn border-primary" onClick={handleStartTen}>
+        {isTenAvailable ? (
+          <div>Go To Room: Ten Sticks</div>
+        ) : (
+          isTenCreated ? (
+            <div>Wait For Player</div>
+          ) : (
+            <div>Create Room: Ten Sticks</div>
           )
         )}
       </button>
