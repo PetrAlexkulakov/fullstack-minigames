@@ -35,9 +35,10 @@ module.exports = (server) => {
                 await game.update(updatedData);
                 
                 io.emit('gameUpdated', game);
-                tictactoeSocket(io);
             }
         });
+
+        tictactoeSocket(socket, io);
 
         socket.on('disconnect', () => {
             console.log('User disconnected from socket:', socket.id);

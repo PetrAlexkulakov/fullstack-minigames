@@ -6,20 +6,29 @@ import { socket } from '../../share/socket';
 
 export default function TicTacToe({ name }: { name: string }) {
   const { id } = useParams();
-  const [history, setHistory] = useState<(string | null)[][]>([Array(9).fill(null)]);
+  const [history, setHistory] = useState<(string | null)[]>(Array(9).fill(null));
   const [currentMove, setCurrentMove] = useState(0);
   const [userRole, setUserRole] = useState('0');
   const xIsNext = currentMove % 2 === 0;
-  const currentSquares: (string | null)[] = history[currentMove];
 
-  const userRoleHandler = ({ role }: { role: string }) => {
+  const userRoleHandler = ({ role, board }: { role: string, board: string }) => {
     setUserRole(role)
+    setHistory(Array.from(board, (char) => (char === '-' ? null : char)))
   }
 
   function handlePlay(nextSquares: (string | null)[]) {
-    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    const nextHistory =  nextSquares;
     setHistory(nextHistory);
+    socket.emit('playerMove', {
+      id,
+      name,
+      board: nextHistory.map((element) => (element === null ? '-' : element)).join('')
+    })
     setCurrentMove(nextHistory.length - 1);
+  }
+
+  const handleUpdateBoard = ({ board }: { board: string }) => {
+    setHistory(Array.from(board, (char) => (char === '-' ? null : char)))
   }
 
   useEffect(() => {
@@ -29,8 +38,10 @@ export default function TicTacToe({ name }: { name: string }) {
     })
 
     socket.on('userRole', userRoleHandler);
+    socket.on('updateBoard', handleUpdateBoard)
     return () => {
       socket.off("userRole", userRoleHandler);
+      socket.off('updateBoard', handleUpdateBoard)
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -40,7 +51,7 @@ export default function TicTacToe({ name }: { name: string }) {
       <div className="game">
         <h1>Your role: {userRole}</h1>
         <div className="game-board">
-          <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+          <Board xIsNext={xIsNext} squares={history} onPlay={handlePlay} />
         </div>
       </div>
     </PageWrapper>

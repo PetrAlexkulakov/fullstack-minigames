@@ -2,7 +2,7 @@ import { Navigate, Outlet } from "react-router-dom";
 
 const PrivateRoute = ({
     name,
-    redirectPath = '/login',
+    redirectPath = '/',
     children,
   }: {
     name: string,

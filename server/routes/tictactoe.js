@@ -1,41 +1,62 @@
 const { Server } = require('socket.io');
 const { Game } = require('../models');
+const { Op } = require('sequelize');
 
-module.exports = (io) => {
-    io.on('connection', (socket) => {
-        console.log('User connected from socket:', socket.id);
+module.exports = (socket, io) => {
+    socket.on('userInTictack', async (data) => {
+        try {
+            const { id, name } = data;
+            
+            const game = await Game.findByPk(id);
+            if (!game) {
+                socket.emit('gameError', { error: 'Game not found' });
+            } else {
+                let userRole = null;
 
-        socket.on('userInTictack', async (data) => {
-            try {
-                const { id, name } = data;
-                
-                const game = await Game.findByPk(id);
-                if (!game) {
-                    socket.emit('gameError', { error: 'Game not found' });
-                } else {
-                    let userRole = null;
-
-                    if (game.player1 === name) {
-                        userRole = 'Х';
-                    } else if (game.player2 === name) {
-                        userRole = 'O';
-                    }
-        
-                    if (userRole) {
-                        socket.emit('userRole', { role: userRole });
-                    } else {
-                        socket.emit('gameError', { error: 'Player not found in the game' });
-                    }
-                    
+                if (game.player1 === name) {
+                    userRole = 'Х';
+                } else if (game.player2 === name) {
+                    userRole = 'O';
                 }
-            } catch (error) {
-                console.error(error);
+    
+                if (userRole) {
+                    socket.join(`game-${id}`);
+                    socket.emit('userRole', { role: userRole, board: game.board });
+                } else {
+                    socket.emit('gameError', { error: 'Player not found in the game' });
+                }
+                
+            }
+        } catch (error) {
+            console.error(error);
+            socket.emit('gameError', { message: 'An error occurred' });
+        }
+    });
+
+    socket.on('playerMove', async (data) => {
+        try {
+            const { id, name, board } = data;
+            
+            const game = await Game.findOne({
+                where: {
+                    id: id,
+                    [Op.or]: [{ player1: name }, { player2: name }],//todo
+                },
+            });
+
+            if (!game) {
                 socket.emit('gameError', { message: 'An error occurred' });
             }
-        });
 
-        socket.on('disconnect', () => {
-            console.log('User disconnected from socket:', socket.id);
-        });
-    });
+            game.board = board; 
+            await game.save(); 
+        
+            io.to(`game-${id}`).emit('updateBoard', { board: game.board });
+
+            return game;
+        } catch (error) {
+            console.error(error);
+            socket.emit('gameError', { message: 'An error occurred' });
+        }
+    })
 };

@@ -8,7 +8,7 @@ const Navbar = () => {
   const isSmall = window.innerWidth > 750 ? false : true;
   const [user, setUser] = useState(localStorage.getItem('name') || '');
   const navigation = useNavigate();
-  const handleLogin = () => { navigation('/login') };
+  const handleLogin = () => { navigation('/') };
   const handleLogout = () => {
     localStorage.removeItem('name');
     setUser(''); 

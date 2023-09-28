@@ -24,7 +24,7 @@ const Menu = ({ name }: { name: string }) => {
     try {
       const res : IGame[] = (await axios.get(`${basicUrl}/game/games`)).data;
 
-      setIsTictacCreated(res.some((obj: IGame) => obj.player1 === name));
+      setIsTictacCreated(res.some((obj: IGame) => obj.player1 === name && obj.player2 == null));
       const filteredRes = res.filter((elem: IGame) => elem.player2 === null && elem.player1 !== name)
 
       checkIsTictacAvailable(filteredRes)
@@ -38,7 +38,6 @@ const Menu = ({ name }: { name: string }) => {
 
   const gameCreatedHandler = async () => {
     setAvailableGames(await getAvailableGames())
-    //checkIsTictacAvailable();
   }
 
   const gameUpdatedHandler = (game: IGame) => {
@@ -76,16 +75,12 @@ const Menu = ({ name }: { name: string }) => {
     };
   
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
-  useEffect(() => {
     socket.on('gameCreated', gameCreatedHandler);
     socket.on('gameUpdated', gameUpdatedHandler);
     return () => {
         socket.off("gameCreated", gameCreatedHandler);
         socket.off("gameUpdated", gameUpdatedHandler);
-        // socket.disconnect();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
